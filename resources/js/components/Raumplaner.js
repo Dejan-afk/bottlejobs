@@ -1,25 +1,38 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './Home';
+import { Layout } from './Layout';
 import Login from './Login';
-import { ProtectedRoute } from './ProtectedRoute/ProtectedRoute';
+import Home from './Home'
+import Register from './Register';
+import {useAuth} from '../hooks/useAuth'
+import AuthContext from '../context/authContext'
 
 function Raumplaner() {
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path={'/login'} element={<Login/>} />
 
-            </Routes>
-            
-        </BrowserRouter>
-        
+    const {userData} = useAuth();
+    const [authData, setAuthData] = useState({signedIn: userData.signedIn, user: userData.user});
+
+    return (
+            <AuthContext.Provider value={{authData, setAuthData}}>
+                <Layout>
+                    <Routes>
+                        <Route path={'/'} element={<Home/>} />
+                        <Route path={'/login'} element={<Login/>} />
+                        <Route path={'/register'} element={<Register/>} />
+                    </Routes>
+                </Layout>
+            </AuthContext.Provider>
     );
 }
-
-export default Raumplaner;
+function Root(){
+    return(
+        <BrowserRouter>
+            <Raumplaner/>
+        </BrowserRouter>
+    )
+}
 
 if (document.getElementById('root')) {
-    ReactDOM.render(<Raumplaner />, document.getElementById('root'));
+    ReactDOM.render(<Root />, document.getElementById('root'));
 }

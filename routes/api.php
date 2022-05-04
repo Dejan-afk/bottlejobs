@@ -14,7 +14,7 @@ use App\Http\Controllers\LoginController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::post('login', [LoginController::class, 'authenticate']);
+//Route::post('login', [LoginController::class, 'login']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

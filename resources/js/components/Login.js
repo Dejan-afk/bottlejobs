@@ -1,67 +1,109 @@
-import React from "react";
-import {
-    Box, 
-    Button,
-    Container,
-    TextField,
-    CssBaseline,
-    Typography
-} from "@mui/material";
+import React, {useContext, useEffect, useState} from "react";
 import axios from "axios";
-function Login() {
+import {useForm} from '../hooks/useForm'
+import {useAuth} from '../hooks/useAuth'
+import AuthContext from '../context/authContext'
 
-    const handleSubmit = (event) => {
-        console.log(event.target);
-        // axios.get('/sanctum/csrf-cookie').then(response =>[
-        //     //Login here
-        // ])
+
+const Login = (props) => {
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [remember, setRemember] = useState(false);
+
+    const {setErrors, renderFieldError, message, setMessage, navigate } = useForm();
+
+    const {setAsLogged} = useAuth();
+
+    const {authData} = useContext(AuthContext);
+
+
+    const makeRequest = (e) => {
+        e.preventDefault();
+        setErrors(null);
+        setMessage('');
+
+        //make request first to sanctum
+        axios.get('/sanctum/csrf-cookie').then(() =>{
+
+            const payload = {
+                email,
+                password
+            };
+            if(remember){
+                payload.remember = true;
+            }
+            axios.post('/api/login', payload, {headers: {'Accept': 'application/json'}})
+            .then(response => {
+                console.log(response.data.user);
+
+                if(response.data.user){
+                    alert('Login success');
+                    navigate('/')
+                }
+            })
+            .catch(error => {
+                console.log(error);
+
+                if(error.response){
+                    if(error.response.data.message) setMessage(error.response.data.message);
+                    if(error.response.data.errors) setErrors(error.response.data.errors);
+                }
+            })
+        })
     }
 
     return (
-        <Container maxWidth={"xs"}>
-            <CssBaseline/>
-            <Box
-                sx={{
-                    marginTop: 8,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}>
-                <Typography component={"h1"} variant={"h5"}>
-                    Login
-                </Typography>
-                <Box component={"form"} onSubmit={handleSubmit}>
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        id="email"
-                        label="E-mail"
-                        name="email"
-                        autoComplete="email"
-                        autoFocus
-                    />
-                    <TextField
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="current-password"
-                    />
-                    <Button
-                        fullWidth
-                        variant={"outlined"}
-                        type={"submit"}
-                        sx={{ mt: 3, mb: 2 }}
-                    >
-                        Login
-                    </Button>
-                </Box>
-            </Box>
-        </Container>
+        <div className="row justify-content-center">
+            <div className="col-md-8">
+                <div className="card">
+                    <div className="card-header">Login</div>
+                    <div className="card-body">
+                        {
+                            message && <div className="alert alert-danger">{message}</div>
+                        }
+                        <form method="POST" action="#" onSubmit={makeRequest}>
+                            <div className="row mb-3">
+                                <label htmlFor="email" className="col-md-4 col-form-label text-md-end">Email Address</label>
+                                <div className="col-md-6">
+                                    <input id="email" type="email"
+                                           className="form-control" name="email"
+                                            required autoComplete="email" autoFocus value={email} onChange={e => setEmail(e.target.value)} />
+                                    {renderFieldError('email')}
+                                </div>
+                            </div>
+                            <div className="row mb-3">
+                                <label htmlFor="password" className="col-md-4 col-form-label text-md-end">Password</label>
+                                <div className="col-md-6">
+                                    <input id="password" type="password"
+                                           className="form-control" name="password"
+                                           required autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} />
+                                    { renderFieldError('password') }
+                                </div>
+                            </div>
+                            <div className="row mb-3">
+                                <div className="col-md-6 offset-md-4">
+                                    <div className="form-check">
+                                        <input className="form-check-input" type="checkbox" name="remember"
+                                               id="remember" onChange={e => { setRemember(e.target.checked ? 1 : 0) } } />
+                                            <label className="form-check-label" htmlFor="remember">
+                                                Remember Me
+                                            </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row mb-0">
+                                <div className="col-md-8 offset-md-4">
+                                    <button type="submit" className="btn btn-primary">
+                                        Login
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     )
 }
 
