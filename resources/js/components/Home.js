@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import user from '../auth/user'
 import logo from '../../../public/images/1.png';
 import '../../sass/home.scss';
 import {BsSearch} from 'react-icons/bs';
@@ -15,7 +15,7 @@ function Home() {
             <div className='header d-flex justify-content-between align-items-center px-2'>
                 <img className="logo" src={logo} alt="logo"></img>
                 <h2>Raumplaner</h2>
-                <button id="login-button" className='btn button'>Login</button>
+                <button id="login-button" name="login-button" className='btn button'>{user.username}</button>
             </div>
 
             <div className='flex-row justify-content-center p-2 pt-4 input-group '>
